@@ -94,7 +94,7 @@ static const Draw_t DrawList[][MAX_DRAW_ITEM_NUM] =
     {DrawMin, {1, 23, Time, DRAW_OPT_NONE, DRAW_OPT_BITWISE_OR}},
     {DrawBluetoothState, {30, 27, ICON_SET_BLUETOOTH_SMALL, DRAW_OPT_BITWISE_OR}},
     {DrawBatteryStatus, {35, 2, ICON_SET_BATTERY_V, DRAW_OPT_BITWISE_OR}},
-    {DrawDate, {25, 25, MetaWatch7, DRAW_OPT_OVERLAP_BT, DRAW_OPT_BITWISE_OR}},
+    {DrawDate, {24, 25, MetaWatch7, DRAW_OPT_OVERLAP_BT, DRAW_OPT_BITWISE_OR}},
     {DrawSec, {29, 31, MetaWatch16, DRAW_OPT_OVERLAP_BT, DRAW_OPT_BITWISE_OR}},
     {DrawDayofWeek, {25, 35, MetaWatch7, DRAW_OPT_OVERLAP_BT | DRAW_OPT_OVERLAP_SEC, DRAW_OPT_BITWISE_OR}}
   },
@@ -126,7 +126,7 @@ static const Draw_t DrawList[][MAX_DRAW_ITEM_NUM] =
     {DrawAmPm, {33, 80, MetaWatch16, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
     {DrawBluetoothState, {76, 1, ICON_SET_BLUETOOTH_SMALL, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
     {DrawBatteryStatus, {3, 4, ICON_SET_BATTERY_H, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
-    {DrawDate, {61, 80, MetaWatch16, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
+    {DrawDate, {58, 80, MetaWatch16, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
     {DrawSec, {39, 1, MetaWatch16, DRAW_OPT_NONE, DRAW_OPT_BITWISE_NOT}},
     {DrawDayofWeek, {3, 80, MetaWatch16, DRAW_OPT_OVERLAP_NONE, DRAW_OPT_BITWISE_NOT}}
   },
@@ -158,8 +158,8 @@ static const Widget_t ClockWidget[] =
   {LAYOUT_QUAD_SCREEN, 7, DrawList[0]},
   {LAYOUT_HORI_SCREEN, 7, DrawList[1]},
   {LAYOUT_FULL_SCREEN, 9, DrawList[2]},
-  {LAYOUT_FULL_SCREEN, 9, DrawList[3]},
-  {LAYOUT_FULL_SCREEN, 10, DrawList[4]}
+  {LAYOUT_FULL_SCREEN, 10, DrawList[3]},
+  {LAYOUT_FULL_SCREEN, 9, DrawList[4]}
 };
 
 #define HOME_WIDGET_NUM (sizeof(ClockWidget) / sizeof(Widget_t))
@@ -340,15 +340,31 @@ static void DrawDate(DrawInfo_t *Info)
 
   memset(pDate, 0, 5); // clear Date[]
   
-  *pDate = (DayFirst ? RTCDAY : RTCMON) / 10;
-  if (*pDate) *pDate++ += '0';
-
+*pDate = (DayFirst ? RTCDAY : RTCMON) / 10;
+  if (!*pDate)
+ {
+  *pDate++ += '0';
   *pDate++ = (DayFirst ? RTCDAY : RTCMON) % 10 + '0';
-  *pDate++ = '/';
-  *pDate = (DayFirst ? RTCMON : RTCDAY) / 10;
-  if (*pDate) *pDate++ += '0';
+ }
+  else
+ {
+   *pDate++ = (DayFirst ? RTCDAY : RTCMON) / 10 + '0';
+   *pDate++ = (DayFirst ? RTCDAY : RTCMON) % 10 + '0';
+ }
 
-  *pDate = (DayFirst ? RTCMON : RTCDAY) % 10 + '0';
+  *pDate++ = '/';
+
+  *pDate = (DayFirst ? RTCMON : RTCDAY) / 10;
+  if (!*pDate)
+ {
+  *pDate++ += '0';
+  *pDate++ = (DayFirst ? RTCMON : RTCDAY) % 10 + '0';
+ }
+  else
+ {
+  *pDate++ = (DayFirst ? RTCMON : RTCDAY) / 10 + '0';
+  *pDate++ = (DayFirst ? RTCMON : RTCDAY) % 10 + '0';
+ }
 
   DrawText(Date, 5, Info->X, Info->Y, Info->Id, DRAW_OPT_PROP_WIDTH, Info->Op);
 }
